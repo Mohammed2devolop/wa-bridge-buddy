@@ -113,13 +113,13 @@ export class MessageListener {
     // Image
     else if (message.imageMessage) {
       content.mediaType = 'image';
-      content.caption = message.imageMessage.caption;
+      content.caption = message.imageMessage.caption || undefined;
       content.text = content.caption || '[Image]';
     }
     // Video
     else if (message.videoMessage) {
       content.mediaType = 'video';
-      content.caption = message.videoMessage.caption;
+      content.caption = message.videoMessage.caption || undefined;
       content.text = content.caption || '[Video]';
     }
     // Audio
@@ -130,7 +130,7 @@ export class MessageListener {
     // Document
     else if (message.documentMessage) {
       content.mediaType = 'document';
-      content.caption = message.documentMessage.caption;
+      content.caption = message.documentMessage.caption || undefined;
       content.text = content.caption || '[Document]';
     }
 
