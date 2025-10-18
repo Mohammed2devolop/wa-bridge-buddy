@@ -8,6 +8,7 @@ import makeWASocket, {
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import qrcode from 'qrcode-terminal';
+import QRCode from 'qrcode';
 import { Logger } from '../utils/Logger';
 import { GroupInfo } from '../types';
 
@@ -41,6 +42,17 @@ export class BaileysClient {
         console.log('\n📱 Scan this QR code with WhatsApp:\n');
         qrcode.generate(qr, { small: true });
         console.log('\nOpen WhatsApp > Settings > Linked Devices > Link a Device\n');
+        
+        // Save QR code as image
+        try {
+          await QRCode.toFile('./bot/qr-code.png', qr, {
+            width: 512,
+            margin: 2,
+          });
+          console.log('✅ QR code saved to bot/qr-code.png\n');
+        } catch (err) {
+          console.error('Failed to save QR code image:', err);
+        }
       }
 
       if (connection === 'close') {
@@ -149,7 +161,7 @@ export class BaileysClient {
   }
 
   isGroup(jid: string): boolean {
-    return jid.endsWith('@g.us');
+    return jid.endsWith('@g.us') || jid.endsWith('@newsletter');
   }
 
   isConnectedStatus(): boolean {
