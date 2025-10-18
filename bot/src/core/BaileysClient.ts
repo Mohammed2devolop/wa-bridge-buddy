@@ -27,16 +27,26 @@ export class BaileysClient {
   }
 
   async connect(): Promise<void> {
-    const { state, saveCreds } = await useMultiFileAuthState(this.sessionPath);
+    try {
+      const { state, saveCreds } = await useMultiFileAuthState(this.sessionPath);
 
-    this.sock = makeWASocket({
-      auth: state,
-      printQRInTerminal: false, // We'll handle QR ourselves
-    });
+      this.sock = makeWASocket({
+        auth: state,
+        printQRInTerminal: false,
+        browser: ['WhatsBridge', 'Chrome', '120.0'],
+        connectTimeoutMs: 60000,
+        defaultQueryTimeoutMs: 60000,
+        keepAliveIntervalMs: 30000,
+      });
+    } catch (error) {
+      console.error('❌ Failed to create WhatsApp socket:', error);
+      throw error;
+    }
 
-    // QR Code for initial connection
     this.sock.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
+
+      console.log('📡 Connection update:', { connection, hasQR: !!qr });
 
       if (qr) {
         console.log('\n📱 Scan this QR code with WhatsApp:\n');
@@ -56,9 +66,12 @@ export class BaileysClient {
       }
 
       if (connection === 'close') {
-        const shouldReconnect =
-          (lastDisconnect?.error as Boom)?.output?.statusCode !==
-          DisconnectReason.loggedOut;
+        const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+        const errorMsg = lastDisconnect?.error?.message || 'Unknown error';
+        
+        console.log('❌ Connection closed. Status:', statusCode, 'Error:', errorMsg);
+        
+        const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
         if (shouldReconnect) {
           await this.logger.warning('Connection closed, reconnecting...');
