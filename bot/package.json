@@ -1,0 +1,12 @@
+{
+  "name": "whatsbridge-bot",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/bot.js",
+    "bot": "npm run build && npm start",
+    "dev": "ts-node src/bot.ts",
+    "clean": "rm -rf dist"
+  }
+}
