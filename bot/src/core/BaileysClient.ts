@@ -27,21 +27,16 @@ export class BaileysClient {
   }
 
   async connect(): Promise<void> {
-    try {
-      const { state, saveCreds } = await useMultiFileAuthState(this.sessionPath);
+    const { state, saveCreds } = await useMultiFileAuthState(this.sessionPath);
 
-      this.sock = makeWASocket({
-        auth: state,
-        printQRInTerminal: false,
-        browser: ['WhatsBridge', 'Chrome', '120.0'],
-        connectTimeoutMs: 60000,
-        defaultQueryTimeoutMs: 60000,
-        keepAliveIntervalMs: 30000,
-      });
-    } catch (error) {
-      console.error('❌ Failed to create WhatsApp socket:', error);
-      throw error;
-    }
+    this.sock = makeWASocket({
+      auth: state,
+      printQRInTerminal: false,
+      browser: ['WhatsBridge', 'Chrome', '120.0'],
+      connectTimeoutMs: 60000,
+      defaultQueryTimeoutMs: 60000,
+      keepAliveIntervalMs: 30000,
+    });
 
     this.sock.ev.on('connection.update', async (update) => {
       const { connection, lastDisconnect, qr } = update;
